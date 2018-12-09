@@ -14,6 +14,7 @@ namespace AdventOfCode.Day2
 			Console.WriteLine($"Result Day2.1: {GetCheckSum(input)}");
 			Console.WriteLine($"Result Day2.2: {GetBoxCodes(input)}");
 			Console.ReadKey();
+
 		}
 
 		private static string GetBoxCodes(string[] input)
