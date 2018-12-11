@@ -8,19 +8,26 @@ namespace AdventOfCode.Day8
 {
 	class PartOne
 	{
-		internal static object GetAllNodes(string[] licenseFile)
+		internal static int GetAllNodes(string[] licenseFile)
 		{
-			var nodes = new List<Node>();
+			var sumOfMetaData = 0;
 			var numberOfChildNodes = Convert.ToInt32(licenseFile[0]);
+			var numberOfMetaData = Convert.ToInt32(licenseFile[1]);
 
+			var subnodes = licenseFile.ToList().GetRange(2, licenseFile.Length - numberOfMetaData - 2); ;
+		
 
 			for (var i = 0; i < numberOfChildNodes; i++)
 			{
-				var node = new Node();
+				sumOfMetaData += GetAllNodes(subnodes.ToArray());
 				
 			}
 
-			return 0;
+			var node = licenseFile.ToList();
+			node.RemoveRange(2, licenseFile.Length - numberOfMetaData-2);
+			sumOfMetaData += GetSumOfNodeMetaData(node.ToArray());
+
+			return sumOfMetaData;
 		}
 
 		private static int GetNode(string[] licenseFile)
