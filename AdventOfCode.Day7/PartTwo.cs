@@ -12,50 +12,52 @@ namespace AdventOfCode.Day7
 		{
 	
 			var allJobs = GetJobs(instructions);
-			var workers = GetWorkers(2);
+			var workers = GetWorkers(5);
 			var workingSeconds = 0;
+			var anyJobIsUnfinished = true;
 
-			while (allJobs.Where(j => j.Done.Equals(false)).Any())
+			while (anyJobIsUnfinished)
 			{
 				allJobs = UpdateDependancies(allJobs);
 				var availebleJobs = allJobs
-					.Where(j => !j.Dependancies.Any() && j.InProgress.Equals(false))
+					.Where(j => j.Done.Equals(false) && j.Dependancies.Equals("") && j.InProgress.Equals(false))
 					.OrderBy(j => j.Step).ToList();
+
 
 				foreach (var worker in workers)
 				{
-					if (worker.Active)
-					{
-						var currentJob = allJobs.Where(j => j.Step.Equals(worker.CurrentJob)).First();
-						
-						if(currentJob.RequiredTime == 0)
-						{
-							currentJob.Done = true;
-							currentJob.InProgress = false;
-							worker.Active = false;
-						}
-						else
-						{
-							currentJob.RequiredTime--;
-						}
-						
-					}
-					else
+					
+					var currentJob = allJobs.Where(j => j.Step.Equals(worker.CurrentJob)).FirstOrDefault();
+					
+
+					if (currentJob == null)
 					{
 						if (availebleJobs.Any())
 						{
 							worker.CurrentJob = availebleJobs.First().Step;
-							worker.Active = true;
-							var currentJob = allJobs.Where(j => j.Step.Equals(worker.CurrentJob)).First();
+							availebleJobs.Remove(availebleJobs.First());
+							currentJob = allJobs.Where(j => j.Step.Equals(worker.CurrentJob)).FirstOrDefault();
+							
 							currentJob.InProgress = true;
 							currentJob.RequiredTime--;
 						}
 					}
+					else
+					{
+						currentJob.RequiredTime--;
+
+						if (currentJob.RequiredTime <= 0)
+						{
+							worker.CurrentJob = '0';
+							currentJob.Done = true;
+						}
+					}
 				}
+
 				workingSeconds++;
+				Console.Write("\r{0}  ", $"WorkingSeconds: {workingSeconds}");
+				anyJobIsUnfinished = allJobs.Where(j => j.Done.Equals(false)).Any();
 			}
-
-
 			return workingSeconds;
 		}
 
@@ -73,13 +75,24 @@ namespace AdventOfCode.Day7
 		private static List<Job> UpdateDependancies(List<Job> allJobs)
 		{
 			var allFinishedJobs = allJobs.Where(j => j.Done.Equals(true)).ToList();
+			var allJobsWithDependancies = allJobs.Where(j => j.Dependancies.Any()).ToList();
 
-			if (allFinishedJobs.Any())
+			if (allFinishedJobs.Any() && allJobsWithDependancies.Any())
 			{
-				// todo: update if  dependancies if finished jobs exist.
-				string MyString = "ABAXD";
-				char MyChar = 'A';
-				string NewString = MyString.Replace(MyChar.ToString(), "");
+				foreach(var finishedJob in allFinishedJobs)
+				{
+					var jobsWithDeps = allJobsWithDependancies.Where(j => j.Dependancies.Contains(finishedJob.Step)).ToList();
+					if (jobsWithDeps.Any())
+					{
+						foreach(var job in jobsWithDeps)
+						{
+							string s = job.Dependancies;
+							string c = finishedJob.Step.ToString();
+							s = s.Replace(c, "");
+							job.Dependancies = s;
+						}
+					}
+				}
 			}
 
 			return allJobs;
@@ -88,14 +101,14 @@ namespace AdventOfCode.Day7
 		private static List<Job> GetJobs(string[] instructions)
 		{
 			var jobList = new List<Job>();
-			var steps = "CABFDE";//"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			var steps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			
 			foreach (var step in steps)
 			{
 				var job = new Job();
 				job.Step = step;
 				job.Dependancies = GetDependancies(instructions, step);
-				job.RequiredTime = StepTime(step);//60 + StepTime(step);
+				job.RequiredTime = 60 + StepTime(step);
 				jobList.Add(job);
 			}
 
