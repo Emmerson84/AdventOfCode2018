@@ -8,9 +8,9 @@ namespace AdventOfCode.Day8
 		static void Main(string[] args)
 		{
 			// Part one
-			var licenseFile = File.ReadAllText("einput.txt").Split(' ');
-			var nodes = PartOne.GetAllNodes(licenseFile);
-			var answerP1 = "??";
+			var licenseFile = File.ReadAllText("input.txt").Split(' ');
+			var nodes = PartOne.GetNodes(licenseFile);
+			var answerP1 = nodes[1];
 
 			// Part two
 			var answerP2 = "??";
