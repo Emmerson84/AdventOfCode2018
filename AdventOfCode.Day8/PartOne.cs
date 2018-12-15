@@ -8,6 +8,66 @@ namespace AdventOfCode.Day8
 {
 	class PartOne
 	{
+		
+		
+
+
+		public static List<int[]> ConvertToInt(string[] stringList)
+		{
+			var resultList = new List<int[]>();
+
+			var inputList = new int[stringList.Length];
+			var i = 0;
+			foreach(var nString in stringList)
+			{
+				inputList[i] = Convert.ToInt32(nString);
+				i++;
+			}
+			resultList.Add(inputList);
+			return resultList;
+		}
+
+
+
+		public static List<int[]> GetSumOfMeta(List<int[]> result)
+		{
+			//var remainingList = result[0];
+
+			var ChildNum = result[0][0];
+			var metaNum = result[0][1];
+			
+			if(ChildNum > 0)
+			{
+				var list = result[0].ToList();
+				list.RemoveRange(0, 2);
+				result[0] = list.ToArray();
+
+				result = GetSumOfMeta(result);
+			}
+
+
+
+
+				//var list = new List<int>()
+				//{
+				//1, 2, 3, 4
+				//};
+
+				//// 1 + 2 + 3
+				//int sum = list.Take(3).Sum();
+
+
+			return result;
+		}
+
+
+
+
+
+
+
+
+
 
 		internal static int[] GetNodes(string[] licenseFile)
 		{
@@ -19,12 +79,24 @@ namespace AdventOfCode.Day8
 
 			if (numberOfChildNodes > 0)
 			{
-				children = licenseFile.ToList().GetRange(2, licenseFile.Length - numberOfMetaData - 2);
+				children = licenseFile.ToList().GetRange(2, licenseFile.Length - (2 + numberOfMetaData));
+
+				
+
 				var quantifier = 0;
 				for (var i = 0; i < numberOfChildNodes; i++)
 				{
 					var NodeIndex = quantifier;
-					var nodeInfo = GetNodes(children.GetRange(NodeIndex, children.Count()-NodeIndex).ToArray());
+
+
+					var nextGroup = children.GetRange(NodeIndex, children.Count() - NodeIndex).ToArray();
+
+					if (nextGroup.Length == 0)
+					{
+						continue;
+					}
+
+					var nodeInfo = GetNodes(nextGroup);
 					quantifier += nodeInfo[0];
 					sum += nodeInfo[1];
 				}
@@ -44,83 +116,8 @@ namespace AdventOfCode.Day8
 			var sumOfFinalNodeMeta = GetSumOfNodeMetaData(list.ToArray());
 			var finalNodeLenght = licenseFile.Length;
 			return new int[] { finalNodeLenght, sumOfFinalNodeMeta + sum };
-
 		}
 
-
-
-
-
-
-
-		internal static int[] GetAllNodes(string[] licenseFile)
-		{
-			//var sumOfMetaData = 0;
-			var numberOfChildNodes = Convert.ToInt32(licenseFile[0]);
-			var numberOfMetaData = Convert.ToInt32(licenseFile[1]);
-			List<string> subnodes = new List<string>();
-
-
-			if (numberOfChildNodes > 0)
-			{
-				subnodes = licenseFile.ToList().GetRange(2, licenseFile.Length - numberOfMetaData - 2);
-				for (var i = 0; i < numberOfChildNodes; i++)
-				{
-					var childNodeLenght = GetAllNodes(subnodes.ToArray());
-					if( i != numberOfChildNodes - 1)
-					{
-						subnodes.RemoveRange(0, childNodeLenght[0]);
-					}
-				}
-			}
-			else if (numberOfChildNodes == 0)
-			{
-				var node = licenseFile.ToList();
-				var nodeLenght = numberOfMetaData + 2;
-				int sumOfMeta = GetSumOfNodeMetaData(node.GetRange(0, nodeLenght).ToArray());
-
-				return new int[] {nodeLenght, sumOfMeta };
-			}
-
-			licenseFile.ToList().RemoveRange(2, 3);
-			var list = licenseFile.ToList();
-			var rr = (subnodes.Count());
-			list.RemoveRange(2, rr);
-			var sumOfFinalNodeMeta = GetSumOfNodeMetaData(list.ToArray());
-			var finalNodeLenght = numberOfMetaData + 2;
-			//int sumOfMetaqqq = GetSumOfNodeMetaData(licenseFile);
-			//subnodes.RemoveRange(0, childNodeLenght[0]);
-			//var nodeLenghtqq = numberOfMetaData + 2;
-			//int sumOfMetaqqq = GetSumOfNodeMetaData(finalNode.RemoveRange(2, 3));
-
-			return new int[] { finalNodeLenght, sumOfFinalNodeMeta };
-
-		}
-
-		private static int GetNode(string[] licenseFile)
-		{
-			var sumOfMetaData = 0;
-			var numberOfChildNodes = Convert.ToInt32(licenseFile[0]);
-			var totalNumberOfMetaData = 0;
-			var numberOfMetaData = Convert.ToInt32(licenseFile[1]);
-			var subNodes = licenseFile.ToList();
-			
-			for (var i = 0; i < numberOfChildNodes; i++)
-			{
-				if (i == 0) { subNodes.RemoveRange(0, 2); }
-				sumOfMetaData += GetNode(subNodes.ToArray());
-				var numberOfSubNodeMetaData = Convert.ToInt32(subNodes[1]);
-				totalNumberOfMetaData += numberOfSubNodeMetaData;
-				subNodes.RemoveRange(0, 2 + numberOfSubNodeMetaData);
-			}
-
-			sumOfMetaData += GetSumOfNodeMetaData(subNodes.ToArray());
-
-			var restValues = licenseFile.ToList();
-			restValues.RemoveRange(2, totalNumberOfMetaData);
-			
-			return sumOfMetaData;
-		}
 
 		public static int GetSumOfNodeMetaData(string[] licenseFile)
 		{
