@@ -23,7 +23,7 @@ namespace AdventOfCode.Day9
 
 		private Tuple<List<Player>, List<Marbel>> PlayGame(List<Player> players, List<Marbel> marbleCircle, int lastMarbelWorth)
 		{
-			Player currentPlayer = GetNextPlayer(players);
+			players = SetNextPlayer(players);
 
 
 			for (var i = 1; i <= lastMarbelWorth; i++)
@@ -35,6 +35,28 @@ namespace AdventOfCode.Day9
 	
 
 			return Tuple.Create(players, marbleCircle);
+		}
+
+		private List<Player> SetNextPlayer(List<Player> players)
+		{
+			var currentPlayer = players.Where(p => p.IsCurrentPlayer.Equals(true));
+			if (currentPlayer.Any())
+			{
+				var currentPlayerIndex = players.FindIndex(p => p.IsCurrentPlayer.Equals(true));
+				players.Find(p => p.IsCurrentPlayer.Equals(true)).IsCurrentPlayer = false;
+				if (currentPlayerIndex != players.Count() - 1)
+				{
+					players[0].IsCurrentPlayer = true;
+					return players;
+				}
+				else
+				{
+					players[currentPlayerIndex + 1].IsCurrentPlayer = true;
+					return players;
+				}
+			}
+			players[0].IsCurrentPlayer = true;
+			return players;
 		}
 
 		private List<Player> GetPlayers(int numberOfPlayers)
