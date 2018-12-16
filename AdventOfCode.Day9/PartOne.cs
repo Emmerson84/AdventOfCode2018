@@ -8,55 +8,88 @@ namespace AdventOfCode.Day9
 {
 	class PartOne
 	{
-		//private List<Player> _players;
-
-
-		public void SetupGame(int numberOfPlayers, int lastMarbelWorth)
+		public Player PlayGame(int numberOfPlayers, int lastMarbleWorth)
 		{
 			var players = GetPlayers(numberOfPlayers);
-			var firstMarbel = new Marbel() { Points = 0, IsCurrent = true };
-			var marbleCircle = new List<Marbel>();
-			marbleCircle.Add(firstMarbel);
+			var marbles = GetMarbles(lastMarbleWorth);
 
-			Tuple<List<Player>, List<Marbel>> gameState = PlayGame(players, marbleCircle, lastMarbelWorth);
-		}
-
-		private Tuple<List<Player>, List<Marbel>> PlayGame(List<Player> players, List<Marbel> marbleCircle, int lastMarbelWorth)
-		{
-			players = SetNextPlayer(players);
+			var marbleCircle = new List<Marbel>() { new Marbel() { Points = 0, IsCurrent = true } };
+			var currentMarbleIndex = 0;
 
 
-			for (var i = 1; i <= lastMarbelWorth; i++)
+			while (marbles.Count() > 0)
 			{
-				var nextMarbel = new Marbel() { Points = i, IsCurrent = true };
-				//marbleCircle = ResolveNextTurn(nextMarbel, marbleCircle);
+				foreach(Player player in players)
+				{
+					Console.Write("\r{0}  ", $"Remaining marbles: {marbles.Count()}");
+
+					if (!marbles.Any()) { break; }
+
+					if ((marbles.First().Points / 23f % 1) > 0)
+					{
+						if (currentMarbleIndex == marbleCircle.Count() - 1)
+						{
+							marbleCircle.Insert(1, marbles.First());
+							currentMarbleIndex = 1;
+						}
+						else if (currentMarbleIndex == marbleCircle.Count() - 2)
+						{
+							marbleCircle.Add(marbles.First());
+							currentMarbleIndex = marbleCircle.Count() - 1;
+						}
+						else
+						{
+							marbleCircle.Insert(currentMarbleIndex + 2, marbles.First());
+							currentMarbleIndex = currentMarbleIndex + 2;
+						}
+					}
+					else
+					{
+						var bonusMarbleIndex = currentMarbleIndex - 7;
+
+						if (bonusMarbleIndex < 0)
+						{
+							bonusMarbleIndex = (marbleCircle.Count()) - (Math.Abs(bonusMarbleIndex));
+							player.Marbels.Add(marbles.First());
+							player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
+							player.Score += marbles.First().Points;
+							player.Score += marbleCircle[bonusMarbleIndex].Points;
+							marbleCircle.RemoveAt(bonusMarbleIndex);
+							currentMarbleIndex = bonusMarbleIndex;
+						}
+						else
+						{
+							player.Marbels.Add(marbles.First());
+							player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
+							player.Score += marbles.First().Points;
+							player.Score += marbleCircle[bonusMarbleIndex].Points;
+							marbleCircle.RemoveAt(bonusMarbleIndex);
+							currentMarbleIndex = bonusMarbleIndex;
+						}
+					}
+
+					marbles.RemoveAt(0);
+				}
 			}
+
+			var winner = players.OrderByDescending(p => p.Score).First();
+			return winner;
+		}
 
 	
 
-			return Tuple.Create(players, marbleCircle);
-		}
-
-		private List<Player> SetNextPlayer(List<Player> players)
+		private List<Marbel> GetMarbles(int lastMarbleWorth)
 		{
-			var currentPlayer = players.Where(p => p.IsCurrentPlayer.Equals(true));
-			if (currentPlayer.Any())
+			var marbleList = new List<Marbel>();
+			for (var i = 1; i <= lastMarbleWorth; i++)
 			{
-				var currentPlayerIndex = players.FindIndex(p => p.IsCurrentPlayer.Equals(true));
-				players.Find(p => p.IsCurrentPlayer.Equals(true)).IsCurrentPlayer = false;
-				if (currentPlayerIndex != players.Count() - 1)
+				marbleList.Add(new Marbel()
 				{
-					players[0].IsCurrentPlayer = true;
-					return players;
-				}
-				else
-				{
-					players[currentPlayerIndex + 1].IsCurrentPlayer = true;
-					return players;
-				}
+					Points = i,
+					IsCurrent = true
+				});
 			}
-			players[0].IsCurrentPlayer = true;
-			return players;
+			return marbleList;
 		}
 
 		private List<Player> GetPlayers(int numberOfPlayers)
