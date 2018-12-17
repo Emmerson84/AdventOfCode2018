@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AdventOfCode.Day10
@@ -11,26 +12,41 @@ namespace AdventOfCode.Day10
 	{
 		static void Main(string[] args)
 		{
-			var input = File.ReadAllLines("einput.txt");
-			var states = GetSignalLightsStartState(input);
+			var input = File.ReadAllLines("input.txt");
+			var lightStates = GetSignalLightsStartState(input);
+			var secondsPassed = 0;
 
-			var averigeDistance = GetAverige(states);
-			var newDistance = 0;
-
-			var distanceIsShrinking = true;
-
-			while (distanceIsShrinking)
+			while (true)
 			{
-				averigeDistance = GetAverige(states);
-				ResolveNextSecond(states);
-				newDistance = GetAverige(states);
+	
+				var xmax = lightStates.Select(l => l.PositionX).Max();
+				var ymax = lightStates.Select(l => l.PositionY).Max();
+			
+				var xmin = lightStates.Select(l => l.PositionX).Min();
+				var ymin = lightStates.Select(l => l.PositionY).Min();
 
-				distanceIsShrinking = averigeDistance -newDistance > 0;
+				var size = GetDistance(new int[] { xmax, xmin }, new int[] { ymin, ymax });
+
+				if(secondsPassed >= 10375)
+				{
+					Console.Clear();
+					foreach (var light in lightStates)
+					{
+						Console.SetCursorPosition(light.PositionX - xmin, light.PositionY - ymin);
+						Console.Write("#");
+						Thread.Sleep(5);
+					}
+					Console.ReadKey();
+				}
+
+				secondsPassed++;
+				ResolveNextSecond(lightStates);
 			}
+		}
 
-
-
-
+		private static int GetDistance(int[]x, int[]y)
+		{
+			return (x.Max() - x.Min()) + (y.Max() - y.Min());
 		}
 
 		private static void ResolveNextSecond(List<SignalLight> states)
@@ -40,25 +56,6 @@ namespace AdventOfCode.Day10
 				s.PositionX += s.VelocityX;
 				s.PositionY += s.VelocityY;
 			}
-		}
-
-		private static int GetAverige(List<SignalLight> states)
-		{
-			var distance = 0;
-			var counter = 0;
-
-			foreach(var s in states)
-			{
-				foreach(var s1 in states)
-				{
-					counter++;
-					var cx = new int[] { s.PositionX, s1.PositionX };
-					var cy = new int[] { s.PositionY, s1.PositionY };
-					distance += (cx.Max() - cx.Min()) + (cy.Max() - cy.Min());
-				}
-			}
-
-			return distance / counter;
 		}
 
 		private static List<SignalLight> GetSignalLightsStartState(string[] input)

@@ -19,9 +19,11 @@ namespace AdventOfCode.Day9
 
 			while (marbles.Count() > 0)
 			{
-				foreach(Player player in players)
+				Console.Write("\r{0}  ", $"Remaining marbles: {marbles.Count()}");
+
+				foreach (Player player in players)
 				{
-					Console.Write("\r{0}  ", $"Remaining marbles: {marbles.Count()}");
+					
 
 					if (!marbles.Any()) { break; }
 
@@ -50,8 +52,8 @@ namespace AdventOfCode.Day9
 						if (bonusMarbleIndex < 0)
 						{
 							bonusMarbleIndex = (marbleCircle.Count()) - (Math.Abs(bonusMarbleIndex));
-							player.Marbels.Add(marbles.First());
-							player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
+							//player.Marbels.Add(marbles.First());
+							//player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
 							player.Score += marbles.First().Points;
 							player.Score += marbleCircle[bonusMarbleIndex].Points;
 							marbleCircle.RemoveAt(bonusMarbleIndex);
@@ -59,8 +61,8 @@ namespace AdventOfCode.Day9
 						}
 						else
 						{
-							player.Marbels.Add(marbles.First());
-							player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
+							//player.Marbels.Add(marbles.First());
+							//player.Marbels.Add(marbleCircle[bonusMarbleIndex]);
 							player.Score += marbles.First().Points;
 							player.Score += marbleCircle[bonusMarbleIndex].Points;
 							marbleCircle.RemoveAt(bonusMarbleIndex);
@@ -99,7 +101,7 @@ namespace AdventOfCode.Day9
 			{
 				playersList.Add(new Player()
 				{
-					Marbels = new List<Marbel>(),
+					//Marbels = new List<Marbel>(),
 					Score = 0
 				});
 			}

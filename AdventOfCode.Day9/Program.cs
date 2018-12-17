@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdventOfCode.Day9
 {
@@ -11,11 +7,12 @@ namespace AdventOfCode.Day9
 		static void Main(string[] args)
 		{
 			var partOne = new PartOne();
-			//var answer1 = partOne.PlayGame(413, 71082).Score;
-			var answer2 = partOne.PlayGame(413, 7108200).Score;
+			var partTwo = new PartTwo();
+			var answer1 = partOne.PlayGame(413, 71082).Score;
+			var answer2 = partTwo.PlayLongGame(413, 7108200);
 
 			Console.Clear();
-			//Console.WriteLine($"Answer day 9.1: {answer1}");
+			Console.WriteLine($"Answer day 9.1: {answer1}");
 			Console.WriteLine($"Answer day 9.2: {answer2}");
 			Console.ReadKey();
 		}
